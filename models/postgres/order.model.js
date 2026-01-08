@@ -74,7 +74,21 @@ const findByRiderId = (riderId, callback) => {
 };
 
 const findAvailableForRider = (callback) => {
-  const query = "SELECT * FROM orders WHERE status = 'ready' AND rider_id IS NULL ORDER BY created_at ASC";
+  // Show orders that are ready for pickup (ready status) or confirmed/preparing (for early pickup)
+  // AND not assigned to any rider yet
+  const query = `
+    SELECT * FROM orders 
+    WHERE status IN ('ready', 'confirmed', 'preparing') 
+    AND rider_id IS NULL 
+    ORDER BY 
+      CASE 
+        WHEN status = 'ready' THEN 1
+        WHEN status = 'preparing' THEN 2
+        WHEN status = 'confirmed' THEN 3
+        ELSE 4
+      END,
+      created_at ASC
+  `;
   pool.query(query, (err, result) => {
     if (err) {
       return callback(err, null);
