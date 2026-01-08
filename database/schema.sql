@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     phone VARCHAR(20),
     owner_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     is_active BOOLEAN DEFAULT true,
+    image_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -35,6 +36,7 @@ CREATE TABLE IF NOT EXISTS menu_items (
     price DECIMAL(10, 2) NOT NULL,
     category VARCHAR(100),
     is_available BOOLEAN DEFAULT true,
+    image_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
