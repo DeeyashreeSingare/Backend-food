@@ -4,13 +4,31 @@ const path = require('path');
 require('dotenv').config({
   path: require('path').resolve(__dirname, '../.env'),
 });
-console.log('JWT_SECRET:', process.env.JWT_SECRET)
+
+// Check if this is a cloud database (Neon, Render, etc.)
+const host = process.env.DB_HOST || 'localhost';
+const isCloudDB = host.includes('.neon.tech') || 
+                   host.includes('.render.com') || 
+                   host.includes('.aws') ||
+                   host.includes('pooler');
+
+// SSL configuration for cloud databases
+const sslConfig = isCloudDB ? {
+  rejectUnauthorized: false // Required for Neon and most cloud PostgreSQL
+} : false;
+
+console.log('Database setup starting...');
+console.log('Host:', host);
+console.log('Cloud DB detected:', isCloudDB);
+console.log('SSL:', sslConfig ? 'enabled' : 'disabled');
+
 const pool = new Pool({
   user: process.env.DB_USER,
-  host: process.env.DB_HOST || 'localhost',
+  host: host,
   database: 'postgres', // Connect to default database first
   password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT || 5432,
+  port: parseInt(process.env.DB_PORT) || 5432,
+  ssl: sslConfig
 });
 
 async function setupDatabase() {
@@ -38,10 +56,11 @@ async function setupDatabase() {
     // Connect to the new database
     const appPool = new Pool({
       user: process.env.DB_USER || 'postgres',
-      host: process.env.DB_HOST || 'localhost',
+      host: host,
       database: dbName,
       password: process.env.DB_PASSWORD || 'postgres',
-      port: process.env.DB_PORT || 5432,
+      port: parseInt(process.env.DB_PORT) || 5432,
+      ssl: sslConfig
     });
     
     const appClient = await appPool.connect();
