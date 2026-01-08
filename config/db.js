@@ -35,7 +35,22 @@ pool.on('connect', () => {
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle PostgreSQL client', err);
-  process.exit(-1);
+  console.error('Error code:', err.code);
+  console.error('Error message:', err.message);
+  // Don't exit on error - let the app handle it gracefully
+  // process.exit(-1);
+});
+
+// Test connection on startup
+pool.query('SELECT NOW()', (err, result) => {
+  if (err) {
+    console.error('PostgreSQL connection test failed:', err);
+    console.error('Error code:', err.code);
+    console.error('Error message:', err.message);
+  } else {
+    console.log('PostgreSQL connection test successful');
+    console.log('Current database time:', result.rows[0].now);
+  }
 });
 
 module.exports = pool;
