@@ -9,6 +9,12 @@ let db;
 
 const connectMongoDB = async () => {
   try {
+    // Detect if this is a local MongoDB connection
+    const isLocalMongoDB = uri.includes('localhost') || 
+                          uri.includes('127.0.0.1') || 
+                          uri.startsWith('mongodb://localhost') ||
+                          uri.startsWith('mongodb://127.0.0.1');
+    
     // Add connection options for better reliability and SSL handling
     const options = {
       serverSelectionTimeoutMS: 10000, // Timeout after 10s
@@ -16,10 +22,13 @@ const connectMongoDB = async () => {
       connectTimeoutMS: 10000, // Connection timeout
       retryWrites: true,
       w: 'majority',
-      // SSL/TLS options
-      tls: true,
-      tlsAllowInvalidCertificates: false,
-      tlsAllowInvalidHostnames: false,
+      // SSL/TLS options - only for cloud MongoDB (Atlas)
+      // Local MongoDB doesn't need TLS
+      ...(isLocalMongoDB ? {} : {
+        tls: true,
+        tlsAllowInvalidCertificates: false,
+        tlsAllowInvalidHostnames: false,
+      }),
       // Use IPv4
       family: 4
     };

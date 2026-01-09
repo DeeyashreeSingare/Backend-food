@@ -30,7 +30,7 @@ setupSocket(io);
 // Make io available globally for controllers
 app.set('io', io);
 
-// Connect to MongoDB
+// Connect to MongoDB (optional - server will start even if MongoDB fails)
 connectMongoDB()
   .then(() => {
     // Start server
@@ -41,8 +41,15 @@ connectMongoDB()
     });
   })
   .catch((err) => {
-    console.error('Failed to connect to MongoDB:', err);
-    process.exit(1);
+    console.error('⚠️  Failed to connect to MongoDB:', err.message);
+    console.error('⚠️  Server will start without MongoDB. Notifications may not work.');
+    console.error('⚠️  For local development, you can use local MongoDB or MongoDB Atlas.');
+    // Start server anyway - MongoDB is only needed for notifications
+    server.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+      console.log(`PostgreSQL: Connected`);
+      console.log(`MongoDB: ⚠️  Not connected - notifications disabled`);
+    });
   });
 
 module.exports = { server, io };

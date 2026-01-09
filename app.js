@@ -78,8 +78,18 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send({ message: 'Something went wrong!', error: err.message });
+  console.error('=== ERROR DETAILS ===');
+  console.error('URL:', req.url);
+  console.error('Method:', req.method);
+  console.error('Error:', err.message);
+  console.error('Stack:', err.stack);
+  console.error('===================');
+  res.status(500).send({ 
+    message: 'Something went wrong!', 
+    error: err.message,
+    path: req.url,
+    method: req.method
+  });
 });
 
 module.exports = app;
